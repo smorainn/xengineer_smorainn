@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FluenZ - 沉浸式 AI 口语自修室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    body {
+      background: #050505;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .gradient-border {
+      border: 1px solid transparent;
+      background: linear-gradient(#0f0f0f, #0f0f0f) padding-box,
+                  linear-gradient(135deg, #a855f7, #6366f1, #3b82f6) border-box;
+    }
+    
+    .glass-card {
+      background: rgba(15, 15, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glass-card-strong {
+      background: rgba(15, 15, 15, 0.9);
+      backdrop-filter: blur(32px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3), rgba(59, 130, 246, 0.3));
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    
+    .btn-glow:hover::before {
+      opacity: 1;
+    }
+    
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 24px;
+    }
+    
+    .wave-bar {
+      width: 3px;
+      background: linear-gradient(to top, #a855f7, #6366f1);
+      border-radius: 2px;
+      animation: wave 1.5s ease-in-out infinite;
+    }
+    
+    .wave-bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+    .wave-bar:nth-child(2) { animation-delay: 0.1s; height: 16px; }
+    .wave-bar:nth-child(3) { animation-delay: 0.2s; height: 12px; }
+    .wave-bar:nth-child(4) { animation-delay: 0.3s; height: 20px; }
+    .wave-bar:nth-child(5) { animation-delay: 0.4s; height: 8px; }
+    .wave-bar:nth-child(6) { animation-delay: 0.5s; height: 18px; }
+    .wave-bar:nth-child(7) { animation-delay: 0.6s; height: 14px; }
+    .wave-bar:nth-child(8) { animation-delay: 0.7s; height: 22px; }
+    .wave-bar:nth-child(9) { animation-delay: 0.8s; height: 10px; }
+    .wave-bar:nth-child(10) { animation-delay: 0.9s; height: 16px; }
+    
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.5); }
+    }
+    
+    .slide-in-up {
+      animation: slideUp 0.8s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeIn 1s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .pulse-soft {
+      animation: pulseSoft 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    
+    .gradient-bg {
+      background-color: #0a0a0a;
+    }
+    
+    .tab-indicator {
+      transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 20px rgba(168, 85, 247, 0.4),
+                   0 0 40px rgba(99, 102, 241, 0.2);
+    }
+    
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    
+    .scroll-reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, #a855f7, #6366f1, #3b82f6);
+      animation: progress 2s ease-out forwards;
+    }
+    
+    @keyframes progress {
+      from { width: 0%; }
+    }
+    
+    .typing-cursor::after {
+      content: '|';
+      animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    
+    .flip-card {
+      perspective: 1000px;
+    }
+    
+    .flip-card-inner {
+      transition: transform 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+      transform-style: preserve-3d;
+    }
+    
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    
+    .flip-card-front,
+    .flip-card-back {
+      backface-visibility: hidden;
+    }
+    
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="gradient-bg">
+  <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full glass-card">
+    <div class="flex items-center gap-8">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+          <span class="text-white font-bold text-sm">FZ</span>
+        </div>
+        <span class="text-white font-semibold">FluenZ</span>
+      </div>
+      <div class="flex items-center gap-6 text-sm text-gray-400">
+        <a href="#features" class="hover:text-white transition-colors duration-300">功能特色</a>
+        <a href="#contrast" class="hover:text-white transition-colors duration-300">对比优势</a>
+        <a href="#modes" class="hover:text-white transition-colors duration-300">交互模式</a>
+        <a href="#preview" class="hover:text-white transition-colors duration-300">体验预览</a>
+      </div>
+      <a href="chat.html" class="px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium hover:opacity-90 transition-opacity duration-300">
+        立即开始
+      </a>
+    </div>
+  </nav>
+
+  <section id="hero" class="min-h-[100dvh] flex items-center justify-center px-4 pt-24">
+    <div class="max-w-6xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 slide-in-up" style="animation-delay: 0.2s;">
+        <span class="w-2 h-2 rounded-full bg-green-500 pulse-soft"></span>
+        <span class="text-sm text-gray-400">无需下载，网页端即时体验</span>
+      </div>
+      
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 slide-in-up" style="animation-delay: 0.3s;">
+        <span class="gradient-text glow-text">FluenZ</span>
+      </h1>
+      
+      <h2 class="text-2xl md:text-3xl lg:text-4xl font-light text-gray-300 mb-4 slide-in-up" style="animation-delay: 0.4s;">
+        沉浸式 AI 口语自修室
+      </h2>
+      
+      <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-4 slide-in-up" style="animation-delay: 0.5s;">
+        无惧开口，像和朋友聊天一样，把地道英语练成肌肉记忆。
+      </p>
+      
+      <p class="text-sm text-gray-400 mb-10 slide-in-up" style="animation-delay: 0.6s;">
+        Speak Fearlessly. Immersive AI pairing that turns native English into your muscle memory.
+      </p>
+      
+      <div class="flex flex-wrap justify-center gap-4 mb-16 slide-in-up" style="animation-delay: 0.7s;">
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+          <span class="text-lg">✨</span>
+          <span class="text-sm text-gray-300">零下载，一触即练</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+          <span class="text-lg">🔒</span>
+          <span class="text-sm text-gray-300">100% 隐私保护</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+          <span class="text-lg">💰</span>
+          <span class="text-sm text-gray-300">全功能免费畅聊</span>
+        </div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 slide-in-up" style="animation-delay: 0.8s;">
+        <a href="chat.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-semibold text-lg btn-glow hover:scale-105 transition-transform duration-300">
+          免费开始练习
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="py-32 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16 scroll-reveal">
+        <span class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 uppercase tracking-wider mb-4">
+          核心功能
+        </span>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">
+          让口语练习<span class="gradient-text">更高效</span>
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          基于先进 AI 技术，打造沉浸式英语口语学习体验
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass-card rounded-xl p-6 hover:border-purple-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">实时对话练习</h3>
+          <p class="text-gray-400 text-sm">与 AI 导师进行真实对话，支持文字和语音输入，随时随地练习口语。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">智能纠错反馈</h3>
+          <p class="text-gray-400 text-sm">单轮对话结束即时纠错，提供语法和发音双重反馈，推荐地道表达。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 hover:border-emerald-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">多维评分系统</h3>
+          <p class="text-gray-400 text-sm">单词发音、流利度、连贯性多维打分，全面量化口语水平。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 hover:border-amber-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">场景角色扮演</h3>
+          <p class="text-gray-400 text-sm">外企面试、餐厅点餐、商务会议等真实场景，沉浸式角色扮演练习。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 hover:border-pink-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">结构化复盘报告</h3>
+          <p class="text-gray-400 text-sm">一键生成练习报告，量化口语短板，追踪学习进度。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 hover:border-cyan-500/30 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">免费无限制</h3>
+          <p class="text-gray-400 text-sm">网页端完全免费，无需下载，无对话次数限制，随时畅聊。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contrast" class="py-32 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16 scroll-reveal">
+        <span class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 uppercase tracking-wider mb-4">
+          破局之解
+        </span>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">
+          <span class="gradient-text">行业沉疴</span> vs <span class="gradient-text">我们的解法</span>
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          打破传统口语学习的机械模式，用 AI 技术重构沉浸式学习体验
+        </p>
+      </div>
+
+      <div class="relative">
+        <div class="flex justify-center mb-8">
+          <button id="contrast-toggle" class="relative w-20 h-10 rounded-full bg-white/10 border border-white/20 flex items-center transition-all duration-500">
+            <div class="absolute left-1 top-1 w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500 shadow-lg" id="toggle-knob"></div>
+          </button>
+          <div class="flex justify-between w-full max-w-4xl absolute top-0 px-4">
+            <span class="text-sm text-gray-400">传统产品</span>
+            <span class="text-sm text-gray-400">FluenZ</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div id="pain-points" class="space-y-4">
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-red-500/50 hover:border-red-500 transition-colors duration-300">
+              <h3 class="font-semibold text-red-400 mb-2">① 机械盲练，缺乏反馈</h3>
+              <p class="text-gray-400 text-sm">市面多数产品流于机械跟读或漫无目的的闲聊，对话结束无语法与表达纠错，说错不知道错在哪。</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-red-500/50 hover:border-red-500 transition-colors duration-300">
+              <h3 class="font-semibold text-red-400 mb-2">② 评测片面，维度缺失</h3>
+              <p class="text-gray-400 text-sm">部分产品发音评测颗粒度粗，只测单词语音，缺少流利度、连贯性与停顿节奏的综合打分。</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-red-500/50 hover:border-red-500 transition-colors duration-300">
+              <h3 class="font-semibold text-red-400 mb-2">③ 复盘低效，手动记录</h3>
+              <p class="text-gray-400 text-sm">缺乏自动化的课后复盘机制，所有的错题、亮点表达、练习数据都需要用户手动复制摘抄。</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-red-500/50 hover:border-red-500 transition-colors duration-300">
+              <h3 class="font-semibold text-red-400 mb-2">④ 场景悬空，生硬跑偏</h3>
+              <p class="text-gray-400 text-sm">部分 AI 闲聊机器人缺乏明确的人设与逻辑边界，对话频繁跑偏，机械生硬。</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-red-500/50 hover:border-red-500 transition-colors duration-300">
+              <h3 class="font-semibold text-red-400 mb-2">⑤ 诱导付费，额度受限</h3>
+              <p class="text-gray-400 text-sm">大量竞品设置极低的每日免费对话次数上限，核心功能需要解锁昂贵的付费订阅。</p>
+            </div>
+          </div>
+
+          <div id="solutions" class="space-y-4">
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500/50 hover:border-emerald-500 transition-colors duration-300">
+              <h3 class="font-semibold text-emerald-400 mb-2">① 单轮即时纠错，推荐地道用语</h3>
+              <p class="text-gray-400 text-sm">无论是文字还是通话，单轮对话结束同步完成语法+发音双重纠错，提供老外日常地道替换句式。</p>
+              <div class="mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span class="text-xs text-emerald-400">反馈即时化 · 大模型提示词工程</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500/50 hover:border-emerald-500 transition-colors duration-300">
+              <h3 class="font-semibold text-emerald-400 mb-2">② 流利度/停顿/连贯性多维综合打分</h3>
+              <p class="text-gray-400 text-sm">引入专业级口语评估模型，不仅看单词音准，更综合评估长句停顿、语流连贯性。</p>
+              <div class="mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span class="text-xs text-emerald-400">学习数据化 · 先进语音识别技术</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500/50 hover:border-emerald-500 transition-colors duration-300">
+              <h3 class="font-semibold text-emerald-400 mb-2">③ 一键生成结构化练习报告</h3>
+              <p class="text-gray-400 text-sm">发送"结束练习"即刻由 AI 自动汇总生成中文复盘报告，清晰量化口语短板。</p>
+              <div class="mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span class="text-xs text-emerald-400">复盘闭环化 · 自动提取对话精髓</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500/50 hover:border-emerald-500 transition-colors duration-300">
+              <h3 class="font-semibold text-emerald-400 mb-2">④ 全场景定制 AI 角色人设</h3>
+              <p class="text-gray-400 text-sm">全真还原线下真实英文对话逻辑，从外企面试官到西餐厅服务生，人设前后统一。</p>
+              <div class="mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span class="text-xs text-emerald-400">场景真实化 · 引导式提问设计</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500/50 hover:border-emerald-500 transition-colors duration-300">
+              <h3 class="font-semibold text-emerald-400 mb-2">⑤ 网页端完全免费，无上限畅聊</h3>
+              <p class="text-gray-400 text-sm">基于 Coze + Trae 快速部署，无需下载任何 APP，打开网页即可使用全功能。</p>
+              <div class="mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span class="text-xs text-emerald-400">使用轻量化 · 彻底打破付费焦虑</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="modes" class="py-32 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16 scroll-reveal">
+        <span class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 uppercase tracking-wider mb-4">
+          双轨交互
+        </span>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">
+          两种模式，随心切换
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          从安全网到实战场，根据你的学习阶段选择最适合的练习方式
+        </p>
+      </div>
+
+      <div class="relative max-w-4xl mx-auto">
+        <div class="glass-card-strong rounded-[2rem] p-2">
+          <div class="flex items-center justify-center gap-4 mb-8">
+            <button id="mode-text-btn" class="relative px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium text-sm transition-all duration-300">
+              对话模式
+            </button>
+            <div class="relative w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center cursor-pointer hover:bg-white/15 transition-all duration-300" id="mode-switch">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+              </div>
+            </div>
+            <button id="mode-voice-btn" class="px-8 py-3 rounded-full bg-white/5 border border-white/20 text-gray-400 font-medium text-sm hover:bg-white/10 transition-all duration-300">
+              语音模式
+            </button>
+          </div>
+
+          <div id="mode-content" class="relative">
+            <div id="text-mode" class="space-y-6">
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-green-500/10 to-emerald-600/10 border border-green-500/20">
+                    <p class="text-gray-300 text-sm leading-relaxed">Hi there! How can I help you practice your English today? We can start with a simple conversation or work on specific topics.</p>
+                  </div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="text-xs text-green-400">AI 导师</span>
+                    <span class="text-xs text-gray-400">刚刚</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-4 justify-end">
+                <div class="flex-1">
+                  <div class="glass-card rounded-xl p-4 bg-white/5 border border-white/10">
+                    <p class="text-gray-300 text-sm leading-relaxed">I want to practice my spoken English for job interviews. Can you help me?</p>
+                  </div>
+                  <div class="flex items-center gap-2 mt-2 justify-end">
+                    <span class="text-xs text-gray-400">刚刚</span>
+                    <span class="text-xs text-blue-400">你</span>
+                  </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <span class="text-white text-sm font-medium">U</span>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-green-500/10 to-emerald-600/10 border border-green-500/20">
+                    <p class="text-gray-300 text-sm leading-relaxed">Excellent choice! Let's start with a common interview question. <span class="text-green-400">"Tell me about yourself."</span> Please respond in English, and I'll give you feedback on your pronunciation and grammar.</p>
+                  </div>
+                  <div class="flex items-center gap-4 mt-2">
+                    <span class="text-xs text-green-400">AI 导师</span>
+                    <span class="text-xs text-gray-400">刚刚</span>
+                    <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10">
+                      <span class="text-xs text-amber-400">评分: 85</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass-card rounded-xl p-4 border border-white/10">
+                <div class="flex items-center gap-3">
+                  <input type="text" placeholder="输入你的回复..." class="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-sm">
+                  <button class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center hover:opacity-90 transition-opacity">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                  </button>
+                  <button class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="voice-mode" class="hidden space-y-6">
+              <div class="text-center py-12">
+                <div class="relative inline-block">
+                  <div class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center pulse-soft">
+                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    </svg>
+                  </div>
+                  <div class="absolute inset-0 w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 opacity-30 animate-ping"></div>
+                </div>
+                <p class="mt-4 text-gray-300">AI 导师正在聆听...</p>
+                <div class="flex justify-center mt-4">
+                  <div class="waveform">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass-card rounded-xl p-4 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                      </svg>
+                    </div>
+                    <span class="text-sm text-gray-300">AI 导师</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-amber-400">单词: 58</span>
+                    <span class="text-xs text-emerald-400">流畅: 38</span>
+                  </div>
+                </div>
+                <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div class="h-full progress-bar rounded-full" style="animation-delay: 0.5s; width: 72%;"></div>
+                </div>
+                <div class="flex justify-between mt-2">
+                  <span class="text-xs text-gray-400">本轮得分</span>
+                  <span class="text-lg font-bold text-amber-400">96</span>
+                </div>
+              </div>
+
+              <div class="flex justify-center gap-4">
+                <button class="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/15 transition-all">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </button>
+                <button class="w-20 h-20 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center hover:bg-red-500/30 transition-all">
+                  <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                </button>
+                <button class="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/15 transition-all">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+        <div class="glass-card rounded-xl p-6 border border-green-500/20 hover:border-green-500/40 transition-colors">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-green-400">双向对话模式</h3>
+              <p class="text-xs text-gray-400">Text & Voice Hybrid</p>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed">给听力尚在起步阶段用户的"安全网"。实时文字输出 AI 的话语 + 点击按钮语音发言。即便听不懂，也能通过文字气泡无缝跟进。</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-colors">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-blue-400">全真语音通话</h3>
+              <p class="text-xs text-gray-400">Pure Telephony Experience</p>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed">高沉浸、高挑战的"拟真电话亭"。无文字提示的沉浸式纯音频对抗。即时语音流纠错，伴随引导式练习。专为职场人士面试准备、考生高压冲刺打造。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="preview" class="py-32 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16 scroll-reveal">
+        <span class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 uppercase tracking-wider mb-4">
+          实景体验
+        </span>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">
+          沉浸式对话界面
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          高度拟真的对话体验，让你仿佛置身真实的英语交流场景
+        </p>
+      </div>
+
+      <div class="glass-card-strong rounded-[2rem] overflow-hidden">
+        <div class="flex items-center gap-3 px-4 py-3 bg-white/5 border-b border-white/10">
+          <div class="flex gap-2">
+            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+          </div>
+          <div class="flex-1 text-center">
+            <span class="text-xs text-gray-400">FluenZ - 沉浸式 AI 口语自修室</span>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-purple-500/10 to-blue-600/10 border border-purple-500/20 mb-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-white">AI 口语导师</span>
+                <span class="text-xs text-gray-400 ml-2">在线</span>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed">
+              Hi～ 欢迎开启你的专属实景英语口语自修室！我是你的一对一英文陪练导师 😊
+            </p>
+            <div class="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
+              <p class="text-gray-400 text-xs mb-3">目前已为你加载三大全真职场与生活实景，发送【场景编号】或【英文名称】即可切换身份，秒入真实语境：</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="p-3 bg-white/5 rounded-lg border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                  <span class="text-xs text-purple-400">[01]</span>
+                  <span class="text-sm text-white ml-2">Job Interview</span>
+                  <p class="text-xs text-gray-400 mt-1">外企高端面试</p>
+                </div>
+                <div class="p-3 bg-white/5 rounded-lg border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                  <span class="text-xs text-purple-400">[02]</span>
+                  <span class="text-sm text-white ml-2">Restaurant Order</span>
+                  <p class="text-xs text-gray-400 mt-1">西餐餐厅点餐</p>
+                </div>
+                <div class="p-3 bg-white/5 rounded-lg border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                  <span class="text-xs text-purple-400">[03]</span>
+                  <span class="text-sm text-white ml-2">Business Meeting</span>
+                  <p class="text-xs text-gray-400 mt-1">商务例会沟通</p>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                <p class="text-xs text-gray-400">
+                  <span class="text-purple-400">💡</span> 玩转 FluenZ 的三个小特权：
+                </p>
+                <ul class="mt-2 space-y-1">
+                  <li class="text-xs text-gray-400">• 随心开口：支持全英文发言，也完全支持中英夹杂</li>
+                  <li class="text-xs text-gray-400">• 动态打分：单词分(满分60) + 流畅分(满分40) = 总分100分</li>
+                  <li class="text-xs text-gray-400">• 随时复盘：发送【结束练习】生成专属复盘报告</li>
+                </ul>
+              </div>
+              <p class="text-gray-400 text-sm mt-4">
+                现在，输入你想挑战的场景，让我们开始吧！
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mb-6">
+            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <span class="text-white text-sm font-medium">U</span>
+            </div>
+            <div class="flex-1">
+              <div class="glass-card rounded-xl p-4 bg-white/5 border border-white/10">
+                <p class="text-gray-300 text-sm">01</p>
+              </div>
+              <div class="flex items-center gap-4 mt-2">
+                <span class="text-xs text-blue-400">你</span>
+                <span class="text-xs text-gray-400">刚刚</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
+                    <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-xs text-amber-400">单词: 55</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                    <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-xs text-emerald-400">流畅: 38</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30">
+                    <span class="text-xs text-purple-400">总分: 93</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-green-500/10 to-emerald-600/10 border border-green-500/20 mb-6">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-green-400">AI 导师 (HR 面试官)</span>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed mb-3">
+              Great choice! Let's start with a classic interview question. 
+              <span class="text-green-400 font-medium">"Tell me about yourself."</span> 
+              Please introduce yourself in English.
+            </p>
+            <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+              <p class="text-xs text-gray-400 mb-2">💡 发音与语法建议：</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 rounded-full bg-blue-500/20 text-xs text-blue-400 border border-blue-500/30">注意连读："about yourself"</span>
+                <span class="px-2 py-1 rounded-full bg-amber-500/20 text-xs text-amber-400 border border-amber-500/30">重音在"your"</span>
+                <span class="px-2 py-1 rounded-full bg-emerald-500/20 text-xs text-emerald-400 border border-emerald-500/30">保持自然语速</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-xl p-4 border border-white/10">
+            <div class="flex items-center gap-3">
+              <input type="text" placeholder="输入你的回复，或发送场景编号开始练习..." class="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-sm">
+              <button class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center hover:opacity-90 transition-opacity">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+              </button>
+              <button class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="glass-card rounded-xl p-6 text-center">
+          <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">结构化复盘报告</h3>
+          <p class="text-gray-400 text-sm">一键生成完整练习报告，量化口语短板，追踪学习进度</p>
+        </div>
+        <div class="glass-card rounded-xl p-6 text-center">
+          <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">多场景角色模拟</h3>
+          <p class="text-gray-400 text-sm">外企面试、餐厅点餐、商务会议等真实场景全覆盖</p>
+        </div>
+        <div class="glass-card rounded-xl p-6 text-center">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white mb-2">即时纠错反馈</h3>
+          <p class="text-gray-400 text-sm">单轮对话结束同步纠错，提供地道替换句式</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-32 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">
+        准备好开启你的<span class="gradient-text">流利之旅</span>了吗？
+      </h2>
+      <p class="text-gray-400 text-lg mb-10 max-w-3xl mx-auto">
+        无需下载，无需注册，打开网页即可开始练习。让 AI 帮你把地道英语练成肌肉记忆。
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="chat.html" class="w-full sm:w-auto px-10 py-4 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-semibold text-lg btn-glow hover:scale-105 transition-transform duration-300">
+          免费开始练习
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-16 px-4 border-t border-white/10">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div class="col-span-1 md:col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <span class="text-white font-bold text-sm">FZ</span>
+            </div>
+            <span class="text-white font-semibold">FluenZ</span>
+          </div>
+          <p class="text-gray-400 text-sm max-w-md">
+            沉浸式 AI 口语自修室，让你无惧开口，像和朋友聊天一样，把地道英语练成肌肉记忆。
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">产品</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">功能特色</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">交互模式</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">场景模拟</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">复盘报告</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">关于</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">关于我们</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">使用条款</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">隐私政策</a></li>
+            <li><a href="#" class="text-gray-400 text-sm hover:text-white transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-8 border-t border-white/10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-gray-400 text-sm">
+            2024 FluenZ. All rights reserved.
+          </p>
+          <div class="flex items-center gap-4">
+            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+              </svg>
+            </a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+              </svg>
+            </a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2.C3 6a9 9 0 109 9c0-.52-.08-1.03-.21-1.52M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.17 0 2.31-.2 3.36-.56M12 2c2.12 0 4.15.8 5.62 2.18m0 0C17.88 4.8 19.91 6.94 20 9.95M12 2c-2.12 0-4.15-.8-5.62-2.18C6.12 1.2 4.09 3.34 4 6.35m0 0c-.09 3.01 1.08 5.89 3 7.68m0 0C7.09 18.65 5.06 20.76 4 21.76"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const contrastToggle = document.getElementById('contrast-toggle');
+      const toggleKnob = document.getElementById('toggle-knob');
+      const painPoints = document.getElementById('pain-points');
+      const solutions = document.getElementById('solutions');
+
+      contrastToggle.addEventListener('click', () => {
+        toggleKnob.classList.toggle('translate-x-10');
+        painPoints.classList.toggle('opacity-50');
+        painPoints.classList.toggle('scale-95');
+        solutions.classList.toggle('opacity-50');
+        solutions.classList.toggle('scale-95');
+      });
+
+      const modeSwitch = document.getElementById('mode-switch');
+      const modeTextBtn = document.getElementById('mode-text-btn');
+      const modeVoiceBtn = document.getElementById('mode-voice-btn');
+      const textMode = document.getElementById('text-mode');
+      const voiceMode = document.getElementById('voice-mode');
+
+      modeSwitch.addEventListener('click', () => {
+        textMode.classList.toggle('hidden');
+        voiceMode.classList.toggle('hidden');
+        
+        if (textMode.classList.contains('hidden')) {
+          modeTextBtn.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-emerald-600', 'text-white');
+          modeTextBtn.classList.add('bg-white/5', 'border', 'border-white/20', 'text-gray-400');
+          modeVoiceBtn.classList.remove('bg-white/5', 'border', 'border-white/20', 'text-gray-400');
+          modeVoiceBtn.classList.add('bg-gradient-to-r', 'from-green-500', 'to-emerald-600', 'text-white');
+        } else {
+          modeVoiceBtn.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-emerald-600', 'text-white');
+          modeVoiceBtn.classList.add('bg-white/5', 'border', 'border-white/20', 'text-gray-400');
+          modeTextBtn.classList.remove('bg-white/5', 'border', 'border-white/20', 'text-gray-400');
+          modeTextBtn.classList.add('bg-gradient-to-r', 'from-green-500', 'to-emerald-600', 'text-white');
+        }
+      });
+
+      const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+
+      scrollRevealElements.forEach(element => {
+        observer.observe(element);
+      });
+    });
+  </script>
+</body>
+</html>
